@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EcoTrack</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">EcoTrack</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profile') }}">
+                            {% if current_user.profile_pic %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ current_user.profile_pic) }}" alt="Profile Picture" class="img-thumbnail" width="30">
+                            {% endif %}
+                            {{ current_user.username }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-{{ category }}">
+                    {% for category, message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('add_food_item') }}" method="POST">
+            <div class="form-group">
+                <label for="name">Food Item Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="expiration_date">Expiration Date</label>
+                <input type="date" class="form-control" id="expiration_date" name="expiration_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Food Item</button>
+        </form>
+        <h2>Food Items</h2>
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Expiration Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in food_items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.expiration_date }}</td>
+                    <td>
+                        <a href="{{ url_for('update_food_item', id=item.id) }}" class="btn btn-warning">Update</a>
+                        <a href="{{ url_for('delete_food_item', id=item.id) }}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('approve_users') }}" class="btn btn-success mt-3">Approve Users</a>
+        <a href="{{ url_for('view_users') }}" class="btn btn-info mt-3">View Approved Users</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary mt-3">Logout</a>
+    </div>
+</body>
+</html>
